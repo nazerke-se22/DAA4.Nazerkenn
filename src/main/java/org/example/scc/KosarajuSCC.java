@@ -2,7 +2,6 @@ package org.example.scc;
 import org.example.io.Edge;
 import org.example.io.Graph;
 import org.example.util.Metrics;
-
 import java.util.*;
 
 /** Kosaraju SCC in O(V+E). */
