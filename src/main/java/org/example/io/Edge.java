@@ -1,5 +1,4 @@
 package org.example.io;
-
 /** immutable directed weighted edge */
 public class Edge {
     public final int from, to, weight;

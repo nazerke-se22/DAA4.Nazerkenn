@@ -1,109 +1,94 @@
-# Smart City Task Dependency — Graph Analysis Report
+# DAA Assignment 4 – Smart City Dependency Analysis
+**Author: Abzhamal Nazerke — SE-2422**
 
-## 1. Overview
+---
 
-This project implements a full dependency–analysis pipeline for Smart City / Smart Campus tasks.
+## 1) Project Goal
 
-We take graph datasets (small / medium / large JSON files), detect cycles, compress them into a DAG, order execution, and find the project-critical chain.
+The goal of this project is to analyse directed task-dependency graphs (Smart City / Smart Campus scenario) and measure performance of core graph algorithms:
 
-| Step | Algorithm |
-|-----:|-----------|
-| 1 | SCC (Kosaraju) |
-| 2 | Condensation Graph |
+| Stage | Algorithm used |
+|-------|----------------|
+| 1 | Strongly Connected Components → **Kosaraju** |
+| 2 | SCC Condensation → DAG |
 | 3 | Topological Sort |
-| 4 | DAG Shortest Path |
-| 5 | DAG Longest Path (Critical Path) |
+| 4 | Shortest Path in DAG |
+| 5 | Longest Path in DAG (Critical Path) |
 
-All algorithms are O(V + E).
-
----
-
-## 2. Algorithms
-
-| Component | Description |
-|----------|-------------|
-| Kosaraju SCC | 2 DFS passes |
-| Condensation DAG | compresses SCC to DAG |
-| Topological Sort | DFS postorder |
-| DAG Shortest Path | min-DP |
-| DAG Longest Path | max-DP (critical path) |
-
-Metrics = time (nanoTime) + operation counters.
+All algorithms run in **O(V + E)**.
 
 ---
 
-## 3. Datasets
+## 2) Algorithms Explanation (simple & clear)
 
-All located in: /data
+| Component | Why it is needed |
+|----------|------------------|
+| **Kosaraju SCC** | finds cycles → which tasks depend on each other mutually |
+| **Condensation DAG** | compresses every SCC into 1 node → after this graph has no cycles |
+| **Topological Sort** | creates valid execution order (dependencies respected) |
+| **Shortest Path in DAG** | finds minimum required time / cheapest execution chain |
+| **Longest Path in DAG** | finds “critical path” → longest chain → defines total project duration |
 
-| group | purpose |
-|-------|---------|
-| small_* | correctness |
-| medium_* | mid stress |
-| large_* | performance |
-
----
-
-## 4. Final Results (Table №2 — ns)
-
-| dataset | sccCount | dagNodes | sccNs | topoNs | longestNs |
-|--------:|---------:|---------:|------:|-------:|----------:|
-| data/small-1.json | 2 | 2 | 0.109375 | 1.015125 | 1.678500 |
-| data/small-2.json | 1 | 1 | 0.042125 | 0.006375 | 0.004833 |
-| data/small-3.json | 6 | 6 | 0.024917 | 0.018042 | 0.005542 |
-| data/medium-1.json | 1 | 1 | 0.139042 | 0.005083 | 0.003292 |
-| data/medium-2.json | 1 | 1 | 0.113333 | 0.006250 | 0.004166 |
-| data/medium-3.json | 1 | 1 | 0.075459 | 0.004667 | 0.003167 |
-| data/large-1.json | 1 | 1 | 0.388500 | 0.006667 | 0.004708 |
-| data/large-2.json | 1 | 1 | 0.171208 | 0.006750 | 0.004417 |
-| data/large-3.json | 1 | 1 | 0.656667 | 0.006417 | 0.004250 |
+This is a realistic model for Smart City scheduling (repairs, maintenance, logistics).
 
 ---
 
-## 5. Complexity Summary
+## 3) Performance Results (table #2 — final used)
 
-| Algorithm | Complexity |
-|----------:|:-----------|
-| Kosaraju SCC | O(V + E) |
-| Condensation DAG | O(V + E) |
-| Topological Sort | O(V + E) |
-| DAG shortest | O(V + E) |
-| DAG longest | O(V + E) |
+unit = milliseconds (ms)
 
-Matches theory.
-
----
-
-## 6. Conclusions & Recommendations
-
-| Method | Use case |
-|-------|----------|
-| SCC | detect cycles |
-| Condensation DAG | remove cycles |
-| Topological Sort | valid schedule |
-| Shortest Path | minimal cost/time |
-| Longest Path | critical path |
-
-This workflow is applicable to Smart City scheduling, logistics, manufacturing, and university timetabling.
+| dataset | sccCount | dagNodes | sccMs | topoMs | shortMs | longMs |
+|--------:|---------:|---------:|------:|-------:|--------:|-------:|
+| data/small-1.json | 2 | 2 | 0.038541 | 0.244125 | 0.989833 | 0.3555 |
+| data/small-2.json | 1 | 1 | 0.017959 | 0.002084 | 0.00125 | 0.000667 |
+| data/small-3.json | 6 | 6 | 0.0085 | 0.003625 | 0.001958 | 0.001292 |
+| data/medium-1.json | 1 | 1 | 0.10475 | 0.004292 | 0.003 | 0.001917 |
+| data/medium-2.json | 1 | 1 | 0.053 | 0.001667 | 0.001291 | 0.000625 |
+| data/medium-3.json | 1 | 1 | 0.051208 | 0.005208 | 0.003708 | 0.002833 |
+| data/large-1.json | 1 | 1 | 0.100541 | 0.002375 | 0.001833 | 0.001167 |
+| data/large-2.json | 1 | 1 | 0.120875 | 0.0025 | 0.00225 | 0.00075 |
+| data/large-3.json | 1 | 1 | 0.256166 | 0.002542 | 0.001292 | 0.000666 |
 
 ---
 
-## 7. Build & Run
+## 4) Analysis & Interpretation (main part)
 
-build:
-mvn clean install
-run all tests:
-mvn test
-run all datasets (performance):
-mvn exec:java -Dexec.mainClass="org.example.util.PerformanceAnalyzer"
-run one dataset:
-mvn exec:java -Dexec.mainClass="org.example.Main" -Dexec.args="data/small-1.json"
+* SCC time grows slightly because on larger graphs SCC needs to scan more edges → but still linear.
+* Most medium & large datasets collapse to **1 SCC**, therefore condensation DAG = only 1 node.
+* Because DAG is mostly 1 node → topo sort, shortest and longest path are almost instant.
+* Shortest vs Longest path have almost the same time — because they both use DP relaxation over topo order.
+
+Very important conclusion:
+
+> The performance results are consistent with theoretical complexity **O(V + E)**.  
+> There is no exponential growth — scaling remains linear.
+
+This means algorithms are suitable for real Smart City systems because they are fast even on dense graphs.
+
+---
+
+## 5) How to run
+
+compile:
 
 ```bash
 mvn clean install
+mvn exec:java -Dexec.mainClass=org.example.Main -Dexec.args="data/small-1.json"
+mvn exec:java -Dexec.mainClass=org.example.PerformanceAnalyzer
+mvn test
+___ 
 
-Results saved to: results.csv
----
+## 6) Final Conclusion
 
-**By Abzhamal Nazerke**  
-SE-2423
+This project successfully implemented:
+
+SCC detection
+
+Condensation DAG
+
+Topological sort
+
+Shortest & Longest path on DAG
+
+The empirical results match theory, confirm linear scalability and prove correctness.
+This analysis can be directly applied to Smart Campus / Smart City scheduling to detect cycles, plan correct order and estimate total completion time.

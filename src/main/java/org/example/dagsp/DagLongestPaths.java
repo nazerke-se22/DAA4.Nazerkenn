@@ -4,7 +4,17 @@ import org.example.io.Graph;
 import org.example.util.Metrics;
 import java.util.Arrays;
 import java.util.List;
-
+/**
+ * Computes the longest (critical) path in a DAG using DP based on topological order.
+ *
+ * This is used after SCC condensation, because after compression the graph is always a DAG,
+ * which allows linear DP without cycles.
+ *
+ *   complexity: O(V + E)
+ *
+ * metrics:
+ *  - metrics.addOperation() counts DP relaxations and visits
+ */
 public class DagLongestPaths {
     private final Graph dag;
     private final Metrics metrics;
@@ -26,6 +36,13 @@ public class DagLongestPaths {
         this.metrics = m;
     }
 
+    /**
+     * Runs max-DP relaxations along provided topological order.
+     *
+     * @param source the start vertex in DAG (usually original SCC id)
+     * @param topo   list of vertices in topological order
+     * @return Result object which contains dist[] and best() = maximum achievable distance
+     */
     public Result longestFrom(int source, List<Integer> topo){
         long[] dist = new long[dag.size()];
         Arrays.fill(dist, Long.MIN_VALUE);
